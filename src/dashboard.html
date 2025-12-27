@@ -155,6 +155,37 @@
         .priority-Medium .priority-dot { background-color: var(--warning); }
         .priority-Low .priority-dot { background-color: var(--success); }
 
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: #f9fafb;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
     </style>
 </head>
 <body>
@@ -171,7 +202,16 @@
             </div>
 
             <div class="tasks-section">
-                <h3 class="section-title">My Tasks</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <h3 class="section-title" style="margin-bottom: 0;">My Tasks</h3>
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="All">All</button>
+                        <button class="filter-btn" data-filter="Pending">Pending</button>
+                        <button class="filter-btn" data-filter="In Progress">In Progress</button>
+                        <button class="filter-btn" data-filter="Completed">Completed</button>
+                    </div>
+                </div>
+                
                 <div id="taskGrid" class="task-grid">
                     <!-- Tasks will be populated here -->
                     <p style="color: var(--text-light);">Loading tasks...</p>
@@ -181,35 +221,64 @@
     </div>
 
     <script>
+        let allTasks = [];
+
         async function loadTasks() {
             try {
                 const response = await fetch('tasks.json');
-                const tasks = await response.json();
-                const taskGrid = document.getElementById('taskGrid');
-                
-                taskGrid.innerHTML = tasks.map(task => `
-                    <div class="task-card">
-                        <div class="task-header">
-                            <h4 class="task-title">${task.title}</h4>
-                            <span class="badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span>
-                        </div>
-                        <div class="task-meta">
-                            <div class="priority priority-${task.priority}">
-                                <span class="priority-dot"></span>
-                                ${task.priority} Priority
-                            </div>
-                            <div class="due-date">
-                                Due: ${new Date(task.dueDate).toLocaleDateString()}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                allTasks = await response.json();
+                renderTasks('All');
+                setupFilters();
             } catch (error) {
                 console.error('Error loading tasks:', error);
                 document.getElementById('taskGrid').innerHTML = `
                     <p style="color: var(--danger);">Error loading tasks. Please try again later.</p>
                 `;
             }
+        }
+
+        function renderTasks(filter) {
+            const taskGrid = document.getElementById('taskGrid');
+            const filteredTasks = filter === 'All' 
+                ? allTasks 
+                : allTasks.filter(task => task.status === filter);
+            
+            if (filteredTasks.length === 0) {
+                taskGrid.innerHTML = `<p style="color: var(--text-light); grid-column: 1/-1; text-align: center;">No tasks found with status "${filter}".</p>`;
+                return;
+            }
+
+            taskGrid.innerHTML = filteredTasks.map(task => `
+                <div class="task-card">
+                    <div class="task-header">
+                        <h4 class="task-title">${task.title}</h4>
+                        <span class="badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span>
+                    </div>
+                    <div class="task-meta">
+                        <div class="priority priority-${task.priority}">
+                            <span class="priority-dot"></span>
+                            ${task.priority} Priority
+                        </div>
+                        <div class="due-date">
+                            Due: ${new Date(task.dueDate).toLocaleDateString()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupFilters() {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    buttons.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    // Render tasks based on filter
+                    renderTasks(btn.dataset.filter);
+                });
+            });
         }
 
         // Load tasks when page loads
