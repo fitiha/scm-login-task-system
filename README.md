@@ -41,15 +41,23 @@ The system allows a user to:
 ```
 scm-login-task-system/
 │
+├── docs/
+│   ├── Baseline-1-Record.docx
+│   ├── Baseline-2-Record.docx
+│   ├── CI-Register.docx
+│   ├── Configuration-Audit-Report.docx
+│   ├── CR-Form.docx
+│   └── SCMP.docx
+│
+├── releases/
+│   └── Release-Notes-v1.0.docx
+│
 ├── src/
-│   ├── login.html
 │   ├── dashboard.html
+│   ├── login.html
 │   └── tasks.json
 │
-├── docs/
-│   ├── CI-Register.docx
-│   ├── CR-Form.docx
-│   └── Configuration-Audit-Report.docx
+├── tests/
 │
 └── README.md
 ```
