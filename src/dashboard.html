@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SCM System</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--danger);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .logout-btn:hover { opacity: 0.9; }
+
+        .content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .welcome-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .tasks-section {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-In-Progress { background-color: #dbeafe; color: #1e40af; }
+        .status-Pending { background-color: #fef3c7; color: #92400e; }
+        .status-Completed { background-color: #d1fae5; color: #065f46; }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .priority {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .priority-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .priority-High .priority-dot { background-color: var(--danger); }
+        .priority-Medium .priority-dot { background-color: var(--warning); }
+        .priority-Low .priority-dot { background-color: var(--success); }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SCM Dashboard</h1>
+            <a href="login.html" class="logout-btn">Logout</a>
+        </header>
+
+        <div class="content">
+            <div class="welcome-section">
+                <h2>Welcome Back</h2>
+                <p style="margin-top: 0.5rem; color: var(--text-light);">Here's an overview of your assigned tasks.</p>
+            </div>
+
+            <div class="tasks-section">
+                <h3 class="section-title">My Tasks</h3>
+                <div id="taskGrid" class="task-grid">
+                    <!-- Tasks will be populated here -->
+                    <p style="color: var(--text-light);">Loading tasks...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadTasks() {
+            try {
+                const response = await fetch('tasks.json');
+                const tasks = await response.json();
+                const taskGrid = document.getElementById('taskGrid');
+                
+                taskGrid.innerHTML = tasks.map(task => `
+                    <div class="task-card">
+                        <div class="task-header">
+                            <h4 class="task-title">${task.title}</h4>
+                            <span class="badge status-${task.status.replace(/\s+/g, '-')}">${task.status}</span>
+                        </div>
+                        <div class="task-meta">
+                            <div class="priority priority-${task.priority}">
+                                <span class="priority-dot"></span>
+                                ${task.priority} Priority
+                            </div>
+                            <div class="due-date">
+                                Due: ${new Date(task.dueDate).toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                document.getElementById('taskGrid').innerHTML = `
+                    <p style="color: var(--danger);">Error loading tasks. Please try again later.</p>
+                `;
+            }
+        }
+
+        // Load tasks when page loads
+        document.addEventListener('DOMContentLoaded', loadTasks);
+    </script>
+</body>
+</html>

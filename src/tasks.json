@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "title": "Review Q3 Financial Reports",
+        "status": "In Progress",
+        "priority": "High",
+        "dueDate": "2025-12-30"
+    },
+    {
+        "id": 2,
+        "title": "Update Supply Chain Logistics",
+        "status": "Pending",
+        "priority": "Medium",
+        "dueDate": "2026-01-05"
+    },
+    {
+        "id": 3,
+        "title": "Client Meeting with TechCorp",
+        "status": "Completed",
+        "priority": "High",
+        "dueDate": "2025-12-25"
+    },
+    {
+        "id": 4,
+        "title": "System Maintenance Check",
+        "status": "Pending",
+        "priority": "Low",
+        "dueDate": "2026-01-10"
+    }
+]
